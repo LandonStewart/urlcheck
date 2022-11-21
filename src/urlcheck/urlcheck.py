@@ -17,9 +17,12 @@ def main():
     if args.file.name == "<stdin>":
         print("Using stdin, ctrl-d to end")
 
-    sb = SafeBrowsing(args.gsb_api_key)
+    gsb = SafeBrowsing(args.gsb_api_key)
     urls = sorted(set(extract_urls(args.file)))
-    results = sb.lookup_urls(urls)
+    if urls:
+        results = gsb.lookup_urls(urls)
+    else:
+        raise SystemExit("No valid URLs found")
 
     # Check the URLs and update results{}
     with tqdm(
