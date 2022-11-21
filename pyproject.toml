@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "URLCheck"
+description = "Check URLs for GSB status and existence."
+version = "0.5.1"
+readme = "README.md"
+requires-python = ">=3.5"
+dependencies = [
+	"pysafebrowsing",
+	"requests",
+	"iocextract",
+	"tqdm",
+	]
+[project.scripts]
+my-script = "src.urlcheck.urlcheck:main"
