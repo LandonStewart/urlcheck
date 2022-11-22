@@ -4,18 +4,19 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "URLCheck"
-version = "0.5.4"
+version = "0.5.5"
 description = "Check URLs for GSB status and existence."
 authors = [
-	{name = "Landon Stewart", email = "landonstewart@gmail.com"},
+    {name = "Landon Stewart", email = "landonstewart@gmail.com"},
 ]
 readme = "README.md"
 requires-python = ">=3.5"
 dependencies = [
-	"pysafebrowsing",
-	"requests",
-	"iocextract",
-	"tqdm",
+    "pysafebrowsing",
+    "requests",
+    "iocextract",
+    "tqdm",
+    "hyperlink",
 ]
 
 [project.scripts]

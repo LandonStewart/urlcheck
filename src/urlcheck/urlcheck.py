@@ -8,6 +8,7 @@ import concurrent.futures
 import requests
 from tqdm import tqdm
 import iocextract
+import hyperlink
 from pysafebrowsing import SafeBrowsing
 
 
@@ -147,7 +148,8 @@ def build_args():
 def extract_urls(file):
     """Extract all the URLs from the text provided."""
     for url in iocextract.extract_urls(file.read(), refang=True):
-        yield url
+        url = hyperlink.parse(url)
+        yield url.normalize().to_text()
 
 
 def get_urlscan(url, urlscan_api_key):

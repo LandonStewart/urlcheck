@@ -5,4 +5,4 @@ build:
 	pipenv run python -m build
 
 install:
-	pipenv install -e .
+	pip install -e .

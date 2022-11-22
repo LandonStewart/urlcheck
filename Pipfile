@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 build = "*"
 urlcheck = {editable = true, path = "."}
+hyperlink = "*"
 
 [dev-packages]
 
