@@ -59,31 +59,30 @@ def report(results):
     )
 
     for url, values in results.items():
-        if values["malicious"]:
-            parsed = urllib.parse.urlparse(url)
-            if values["status"]["code"] and values["status"]["code"] < 400:
-                recommendation = f"""Remove content from {parsed.path}"""
-            elif values["status"]["code"] and values["status"]["code"] >= 400:
-                recommendation = """Request a review from Google."""
-            else:
-                recommendation = """None.  OK"""
+        parsed = urllib.parse.urlparse(url)
+        if values["status"]["code"] and values["status"]["code"] < 400:
+            recommendation = f"""Remove content from {parsed.path}"""
+        elif values["status"]["code"] and values["status"]["code"] >= 400:
+            recommendation = """Request a review from Google."""
+        else:
+            recommendation = """None.  OK"""
 
-            print(f"""\n# {obfuscate(url)}""")
-            print(f"""+ {"Required Action:":>18}""", f"""{recommendation}""")
-            print(f"""- {"Malicious:":>18}""", f"""{values["malicious"]}""")
-            if "threats" in values:
-                print(f"""- {"Threats:":>18}""", f"""{", ".join(values["threats"])}""")
-            if "status" in values:
-                print(f"""- {"Status:":>18}""", f"""{values["status"]}""")
-            print(f"""- {"Website:":>18}""", f"""{parsed.netloc}""")
-            print(f"""- {"Path:":>18}""", f"""{parsed.path}""")
-            print(
-                f"""- {"Google Status:":>18}""",
-                """https://transparencyreport.google.com/"""
-                f"""safe-browsing/search?url={parsed.netloc}""",
-            )
-            if "urlscan" in values:
-                print(f"""- {"URLScan:":>18}""", f"""{values["urlscan"]["result"]}""")
+        print(f"""\n# {obfuscate(url)}""")
+        print(f"""+ {"Required Action:":>18}""", f"""{recommendation}""")
+        print(f"""- {"Malicious:":>18}""", f"""{values["malicious"]}""")
+        if "threats" in values:
+            print(f"""- {"Threats:":>18}""", f"""{", ".join(values["threats"])}""")
+        if "status" in values:
+            print(f"""- {"Status:":>18}""", f"""{values["status"]}""")
+        print(f"""- {"Website:":>18}""", f"""{parsed.netloc}""")
+        print(f"""- {"Path:":>18}""", f"""{parsed.path}""")
+        print(
+            f"""- {"Google Status:":>18}""",
+            """https://transparencyreport.google.com/"""
+            f"""safe-browsing/search?url={parsed.netloc}""",
+        )
+        if "urlscan" in values:
+            print(f"""- {"URLScan:":>18}""", f"""{values["urlscan"]["result"]}""")
 
     print(
         """\nIf you have any questions related to this issue please respond as""",
