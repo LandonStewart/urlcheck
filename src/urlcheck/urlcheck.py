@@ -82,7 +82,7 @@ def report(results):
             """https://transparencyreport.google.com/"""
             f"""safe-browsing/search?url={parsed.netloc}""",
         )
-        if "urlscan" in values:
+        if "urlscan" in values and "result" in values["urlscan"]:
             print(f"""- {"URLScan:":>18}""", f"""{values["urlscan"]["result"]}""")
 
     print(
