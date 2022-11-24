@@ -7,6 +7,7 @@ name = "pypi"
 build = "*"
 urlcheck = {editable = true, path = "."}
 hyperlink = "*"
+pyfunceble = "*"
 
 [dev-packages]
 

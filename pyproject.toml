@@ -17,6 +17,7 @@ dependencies = [
     "iocextract",
     "tqdm",
     "hyperlink",
+    "PyFunceble",
 ]
 
 [project.scripts]

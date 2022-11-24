@@ -6,10 +6,22 @@ import urllib.parse
 import argparse
 import concurrent.futures
 import requests
+from PyFunceble import URLAvailabilityChecker
 from tqdm import tqdm
 import iocextract
 import hyperlink
 from pysafebrowsing import SafeBrowsing
+
+URL_CHECKER = URLAvailabilityChecker(
+    use_extra_rules=True,
+    use_whois_lookup=True,
+    use_dns_lookup=True,
+    use_netinfo_lookup=True,
+    use_http_code_lookup=True,
+    use_reputation_lookup=True,
+    do_syntax_check_first=True,
+    use_whois_db=True,
+)
 
 
 def main():
@@ -35,9 +47,7 @@ def main():
     ) as pbar:
         with concurrent.futures.ThreadPoolExecutor(max_workers=None) as executor:
             future_to_process = {
-                executor.submit(
-                    get_url_status, url, timeout=args.timeout, proxy=args.proxy
-                ): url
+                executor.submit(get_url_status, url, proxy=args.proxy): url
                 for url, values in results.items()
             }
             for future in concurrent.futures.as_completed(future_to_process):
@@ -74,7 +84,10 @@ def report(results):
         if "threats" in values:
             print(f"""- {"Threats:":>18}""", f"""{", ".join(values["threats"])}""")
         if "status" in values:
-            print(f"""- {"Status:":>18}""", f"""{values["status"]}""")
+            print(
+                f"""- {"Status:":>18}""",
+                f"""{values["status"]["code"]} - {values["status"]["reason"]}""",
+            )
         print(f"""- {"Website:":>18}""", f"""{parsed.netloc}""")
         print(f"""- {"Path:":>18}""", f"""{parsed.path}""")
         print(
@@ -128,12 +141,6 @@ def build_args():
         help="https proxy to use (eg. 20.229.33.75:8080)",
         default=None,
     )
-    parser.add_argument(
-        "-t",
-        "--timeout",
-        help="http timeout (defaults to 5)",
-        default=5,
-    )
     args = parser.parse_args()
 
     if args.gsb_api_key is None:
@@ -164,27 +171,13 @@ def get_urlscan(url, urlscan_api_key):
     return response.json()
 
 
-def get_url_status(url, timeout=5, proxy=None):
-    """Return True if the URL works."""
-    ua = (
-        "Mozilla/5.0 (X11; Linux i686; rv:64.0) Gecko/20100101 Firefox/64.0",
-        "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.10; rv:62.0) Gecko/20100101 Firefox/62.0",
-        "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.13; ko; rv:1.9.1b2) Gecko/20081201 Firefox/60.0",
-        "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36",
-    )
-
-    session = requests.Session()
-    # Proxy stuff will go here
-    try:
-        response = session.head(
-            url,
-            timeout=timeout,
-            headers={"User-Agent": random.choice(ua)},
-        )
-    except Exception as req_err:  # pylint: disable=broad-except
-        return {"code": None, "reason": str(req_err)}
-    else:
-        return {"code": response.status_code, "reason": response.reason}
+def get_url_status(url, proxy=None):
+    URL_CHECKER.set_subject(url)
+    status = URL_CHECKER.get_status().to_dict()
+    return {
+        "code": status["http_status_code"],
+        "reason": f"""{status["status"]} ({status["status_source"]})""",
+    }
 
 
 if __name__ == "__main__":
