@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "URLCheck"
-version = "0.6.0"
+version = "0.6.1"
 description = "Check URLs for GSB status and existence."
 authors = [
     {name = "Landon Stewart", email = "landonstewart@gmail.com"},

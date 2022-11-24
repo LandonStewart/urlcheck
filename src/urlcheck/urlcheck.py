@@ -47,7 +47,7 @@ def main():
     ) as pbar:
         with concurrent.futures.ThreadPoolExecutor(max_workers=None) as executor:
             future_to_process = {
-                executor.submit(get_url_status, url, proxy=args.proxy): url
+                executor.submit(get_url_status, url): url
                 for url, values in results.items()
             }
             for future in concurrent.futures.as_completed(future_to_process):
@@ -71,9 +71,9 @@ def report(results):
 
     for url, values in results.items():
         parsed = urllib.parse.urlparse(url)
-        if values["status"]["code"] and values["status"]["code"] < 400:
+        if values["malicious"] and values["status"]["code"] < 400:
             recommendation = f"""Remove content from {parsed.path}"""
-        elif values["status"]["code"] and values["status"]["code"] >= 400:
+        elif values["malicious"] and values["status"]["code"] >= 400:
             recommendation = """Request a review from Google."""
         else:
             recommendation = """None.  OK"""
@@ -105,6 +105,7 @@ def report(results):
 
 
 def obfuscate(text):
+    """Defang URLs and hostnames."""
     text = text.replace("http", "hxxp")
     text = text.replace(".", "[.]")
     return text
@@ -135,12 +136,6 @@ def build_args():
         help="Defaults to URLSCAN_API_KEY environment variable",
         default=os.environ.get("URLSCAN_API_KEY"),
     )
-    parser.add_argument(
-        "-p",
-        "--proxy",
-        help="https proxy to use (eg. 20.229.33.75:8080)",
-        default=None,
-    )
     args = parser.parse_args()
 
     if args.gsb_api_key is None:
@@ -160,6 +155,7 @@ def extract_urls(file):
 
 
 def get_urlscan(url, urlscan_api_key):
+    """Execute scan at urlscan.io and retrieve the URL for the results."""
     headers = {"API-Key": urlscan_api_key, "Content-Type": "application/json"}
     data = {"url": url, "visibility": "public"}
     response = requests.post(
@@ -171,14 +167,11 @@ def get_urlscan(url, urlscan_api_key):
     return response.json()
 
 
-def get_url_status(url, proxy=None):
+def get_url_status(url):
+    """Use PyFunceble to check the status of a URL's fetchability."""
     URL_CHECKER.set_subject(url)
     status = URL_CHECKER.get_status().to_dict()
     return {
         "code": status["http_status_code"],
         "reason": f"""{status["status"]} ({status["status_source"]})""",
     }
-
-
-if __name__ == "__main__":
-    main()
