@@ -1,7 +1,8 @@
+"""Checks URLs existence, submits to urlscan.io and if listed by Google Safe Browsing."""
+
 import os
 import sys
 import json
-import random
 import urllib.parse
 import argparse
 import concurrent.futures
@@ -88,7 +89,8 @@ def report(results):
         output.append(f"""- {"Website:":>18} {parsed.netloc}""")
         output.append(f"""- {"Path:":>18} {parsed.path}""")
         output.append(
-            f"""- {"Google Status:":>18} https://transparencyreport.google.com/safe-browsing/search?url={parsed.netloc}"""
+            f"""- {"Google Status:":>18} https://transparencyreport.google.com/"""
+            """safe-browsing/search?url={parsed.netloc}"""
         )
         if "urlscan" in values and "result" in values["urlscan"]:
             output.append(f"""- {"URLScan:":>18} {values["urlscan"]["result"]}""")
@@ -97,18 +99,22 @@ def report(results):
 
     if alive == 0:
         print(
-            "This case has been closed for now since all of the URLs appear to have been disabled.  If more reports come in, however, this case will be reopened and you will be notified.\n"
+            "Thank you.  This case has been closed for now since all of the "
+            "URLs appear to have been disabled.  If more reports come in, "
+            "however, this case will be reopened and you will be notified.\n"
         )
 
     print(
-        "Below is a summary of the URLs related to this issue including any required actions that remain to be taken."
+        "Below is a summary of the URLs related to this issue including any "
+        "required actions that remain to be taken."
     )
 
     for line in output:
         print(line)
 
     print(
-        "\nIf you have any questions related to this issue please respond as soon as possible.\n\nRegards,\n\n"
+        "\nIf you have any questions related to this issue please respond as "
+        "soon as possible.\n\nRegards,\n"
     )
 
 
