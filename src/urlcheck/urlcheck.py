@@ -64,43 +64,51 @@ def main():
 
 def report(results):
     """Print report."""
-    print(
-        """Hello,\n\nBelow is a summary of the URLs related to this issue""",
-        """including any required actions that must be taken.""",
-    )
-
+    alive = 0
+    output = []
     for url, values in results.items():
         parsed = urllib.parse.urlparse(url)
         if values["malicious"] and values["status"]["code"] < 400:
+            alive = +1
             recommendation = f"""Remove content from {parsed.path}"""
         elif values["malicious"] and values["status"]["code"] >= 400:
             recommendation = """Request a review from Google."""
         else:
             recommendation = """None.  OK"""
 
-        print(f"""\n# {obfuscate(url)}""")
-        print(f"""+ {"Required Action:":>18}""", f"""{recommendation}""")
-        print(f"""- {"Malicious:":>18}""", f"""{values["malicious"]}""")
+        output.append(f"""\n# {obfuscate(url)}""")
+        output.append(f"""+ {"Required Action:":>18} {recommendation}""")
+        output.append(f"""- {"Malicious:":>18} {values["malicious"]}""")
         if "threats" in values:
-            print(f"""- {"Threats:":>18}""", f"""{", ".join(values["threats"])}""")
+            output.append(f"""- {"Threats:":>18} {", ".join(values["threats"])}""")
         if "status" in values:
-            print(
-                f"""- {"Status:":>18}""",
-                f"""{values["status"]["code"]} - {values["status"]["reason"]}""",
+            output.append(
+                f"""- {"Status:":>18} {values["status"]["code"]} - {values["status"]["reason"]}"""
             )
-        print(f"""- {"Website:":>18}""", f"""{parsed.netloc}""")
-        print(f"""- {"Path:":>18}""", f"""{parsed.path}""")
-        print(
-            f"""- {"Google Status:":>18}""",
-            """https://transparencyreport.google.com/"""
-            f"""safe-browsing/search?url={parsed.netloc}""",
+        output.append(f"""- {"Website:":>18} {parsed.netloc}""")
+        output.append(f"""- {"Path:":>18} {parsed.path}""")
+        output.append(
+            f"""- {"Google Status:":>18} https://transparencyreport.google.com/safe-browsing/search?url={parsed.netloc}"""
         )
         if "urlscan" in values and "result" in values["urlscan"]:
-            print(f"""- {"URLScan:":>18}""", f"""{values["urlscan"]["result"]}""")
+            output.append(f"""- {"URLScan:":>18} {values["urlscan"]["result"]}""")
+
+    print("Hello,\n")
+
+    if alive == 0:
+        print(
+            "This case has been closed for now since all of the URLs appear to have been disabled.  If more reports come in, however, this case will be reopened and you will be notified.\n"
+        )
 
     print(
-        """\nIf you have any questions related to this issue please respond as""",
-        """soon as possible.\n\nRegards,\n\n""",
+        "Below is a summary of the URLs related to this issue including any required actions that remain to be taken."
+    )
+
+    for line in output:
+        print(line)
+
+    print(
+        "\nIf you have any questions related to this issue please respond as soon as possible.\n\nRegards,\n\n"
     )
 
 
