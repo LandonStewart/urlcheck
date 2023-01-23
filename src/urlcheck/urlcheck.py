@@ -90,7 +90,7 @@ def report(results):
         output.append(f"""- {"Path:":>18} {parsed.path}""")
         output.append(
             f"""- {"Google Status:":>18} https://transparencyreport.google.com/"""
-            """safe-browsing/search?url={parsed.netloc}"""
+            f"""safe-browsing/search?url={parsed.netloc}"""
         )
         if "urlscan" in values and "result" in values["urlscan"]:
             output.append(f"""- {"URLScan:":>18} {values["urlscan"]["result"]}""")
